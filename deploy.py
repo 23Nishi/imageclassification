@@ -25,7 +25,7 @@ def load_model():
         return None
 
 # Function to preprocess image
-def preprocess_image(image, target_size=(40, 40)):  # Changed target size to match model expectation
+def preprocess_image(image, target_size=(32, 32)):  # Changed target size to match model expectation
     # Resize image
     image = image.resize(target_size)
     # Convert to array and normalize
