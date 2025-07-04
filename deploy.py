@@ -88,8 +88,8 @@ def main():
                     # Modify this part according to your model's output format
                     predicted_class = np.argmax(prediction, axis=1)[0]
                     confidence = np.max(prediction) * 100
-                    
-                    st.success(f"Predicted Class: {predicted_class}")
+                    classes = ["airplane", "automobile", "bird","cat","deer","dog","frog","horse","ship","truck"]
+                    st.success(f"Predicted Class: {classes[predicted_class]}")
                     st.progress(int(confidence))
                     st.write(f"Confidence: {confidence:.2f}%")
                     
