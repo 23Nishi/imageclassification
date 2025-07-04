@@ -25,11 +25,22 @@ def load_model():
         return None
 
 # Function to preprocess image
-def preprocess_image(image, target_size=(224, 224)):
+def preprocess_image(image, target_size=(40, 40)):  # Changed target size to match model expectation
     # Resize image
     image = image.resize(target_size)
     # Convert to array and normalize
     image_array = np.array(image) / 255.0
+    
+    # Reshape if needed (handle grayscale vs RGB)
+    if len(image_array.shape) == 2:  # Grayscale
+        image_array = np.expand_dims(image_array, axis=-1)
+    elif len(image_array.shape) == 3 and image_array.shape[2] == 4:  # RGBA
+        image_array = image_array[:, :, :3]  # Remove alpha channel
+    
+    # Flatten the image if model expects flattened input
+    # Comment out the next line if your model expects 4D input (batch, height, width, channels)
+    # image_array = image_array.reshape(1, -1)  # Flatten to (1, height*width*channels)
+    
     # Add batch dimension
     image_array = np.expand_dims(image_array, axis=0)
     return image_array
@@ -58,11 +69,16 @@ def main():
         # Add a prediction button
         if st.button("Classify Image"):
             with st.spinner("Classifying..."):
-                # Preprocess the image
-                processed_image = preprocess_image(image)
-                
-                # Make prediction
                 try:
+                    # Display image shape information for debugging
+                    image_array = np.array(image)
+                    st.info(f"Original image shape: {image_array.shape}")
+                    
+                    # Preprocess the image
+                    processed_image = preprocess_image(image)
+                    st.info(f"Processed image shape: {processed_image.shape}")
+                    
+                    # Make prediction
                     prediction = model.predict(processed_image)
                     
                     # Display results
@@ -79,6 +95,15 @@ def main():
                     
                 except Exception as e:
                     st.error(f"Error during prediction: {e}")
+                    st.error("Model input shape mismatch. Please check your model architecture.")
+                    
+                    # Print model summary if possible
+                    try:
+                        st.write("Model expects input shape:")
+                        model_input = model.layers[0].input_shape
+                        st.code(f"Input shape: {model_input}")
+                    except:
+                        pass
 
 if __name__ == "__main__":
     main()
